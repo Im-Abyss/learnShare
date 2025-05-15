@@ -1,5 +1,9 @@
+from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from .schemas import PostCreate, PostResponse
+from .create_db import db
+from utils.Database.Database import Sqlite
 
 
 app = FastAPI(title='LearnShare')
@@ -62,19 +66,25 @@ test_posts = {
 }
 
 
-@app.get('/courses', tags=['Пользовательская панель'])
+@app.get('/courses', 
+         tags=['Пользовательская панель'], 
+         description='Возвращает все курсы')
 async def get_courses():
     return test_courses
 
 
-@app.get('/courses/{course_id}/disciplines', tags=['Пользовательская панель'])
+@app.get('/courses/{course_id}/disciplines', 
+         tags=['Пользовательская панель'], 
+         description='Возвращает предметы по выбранному курсу')
 async def get_disciplines(course_id: int):
     if course_id not in test_disciplines:
         raise HTTPException(status_code=404, detail="Course not found")
     return test_disciplines.get(course_id, '')
 
 
-@app.get('/disciplines/{disciplines_id}/posts', tags=['Пользовательская панель'])
+@app.get('/disciplines/{disciplines_id}/posts', 
+         tags=['Пользовательская панель'], 
+         description='Возвращает посты по выбранному премету')
 async def get_posts(discipline_id: int):
     if discipline_id not in test_posts:
         raise HTTPException(
@@ -82,3 +92,10 @@ async def get_posts(discipline_id: int):
             detail="No posts found for this discipline"
         )
     return test_posts.get(discipline_id, '')
+
+
+@app.post('/disciplines/{disciplines_id}/posts/add',
+          tags=['Пользовательская панель'], 
+          description='Добавление поста')
+async def add_posts(discipline_id: int, post: PostCreate):
+    pass
