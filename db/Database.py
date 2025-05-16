@@ -3,25 +3,21 @@ import sqlite3
 class Sqlite:
     
     # Singleton Init
+    ##### СИГНЛТОН ОЗНАЧАЕТ ЧТО ПАРАМЕТР db_name НАДО ПЕРЕДАТЬ ТОЛЬКО 1 РАЗ В ФАЙЛЕ MAIN.PY
     _instance = None
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, db_name:str=None, isNotBotDatabase=False):
+    def __init__(self, db_name:str=None):
         '''
         `isNotBotDatabase = True`, если вы подключаетесь к основной таблице, связывающей все таблицы\n
         `isNotBotDatabase изнач. = False`
         '''
         if not hasattr(self, "_initialized"):   
             self.db_name = db_name.replace('.db', '')
-
-            if isNotBotDatabase:
-                self.conn = sqlite3.connect(f'MainDatabase.db')
-            else:
-                self.conn = sqlite3.connect(f'{db_name}.db')
-
+            self.conn = sqlite3.connect(f'{db_name}.db')
             self.cursor = self.conn.cursor()
 
 #все связанное с таблицами

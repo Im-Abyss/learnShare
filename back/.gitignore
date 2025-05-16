@@ -1,6 +1,0 @@
-config/
-.venv/
-__pycache__/
-
-database.db
-test.py

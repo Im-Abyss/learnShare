@@ -1,5 +1,4 @@
-from utils.Database.Database import Sqlite
-
+from db.Database import Sqlite
 
 db = Sqlite(db_name='database')
 

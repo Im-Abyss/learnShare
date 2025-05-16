@@ -3,7 +3,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from .schemas import PostCreate, PostResponse
 from .create_db import db
-from utils.Database.Database import Sqlite
 
 
 app = FastAPI(title='LearnShare')
