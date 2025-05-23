@@ -1,4 +1,10 @@
-from db.Database import Sqlite
+import sys
+from pathlib import Path
+
+# Добавляем корень проекта (LEARN_SHARE) в пути Python
+sys.path.append(str(Path(__file__).parent.parent.parent))
+
+from db.Database import Sqlite  # Теперь импорт будет работать
 
 db = Sqlite(db_name='database')
 
