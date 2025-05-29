@@ -1,3 +1,35 @@
+:root {
+  /* Light theme */
+  --bg-color: #ffffff;
+  --text-color: #213547;
+  --card-bg: #f9f9f9;
+  --card-border: #ddd;
+  --hover-bg: #f5f5f5;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --modal-bg: white;
+  --modal-text: #1a1a1a;
+  --border-color: #eee;
+}
+
+[data-theme="dark"] {
+  /* Dark theme */
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+  --card-bg: #2d2d2d;
+  --card-border: #444;
+  --hover-bg: #3d3d3d;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --modal-bg: #2d2d2d;
+  --modal-text: #ffffff;
+  --border-color: #444;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -5,52 +37,53 @@
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
 .course-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: transform 0.2s;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  background-color: var(--card-bg);
 }
 
 .course-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px var(--shadow-color);
 }
+
+.read-the-docs {
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+}
+
+.theme-icon {
+  font-size: 2rem;
+  line-height: 1; /* Убирает лишнее пространство вокруг иконки */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* Занимает всю высоту родителя */
+  width: 100%; /* Занимает всю ширину родителя */
+}
+
