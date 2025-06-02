@@ -1,6 +1,6 @@
 from .Database import Sqlite
 from datetime import datetime
-curseas = {1:'FirstCurse', 
+curseas =  {1:'FirstCurse', 
             2:'SecondCurse', 
             3:'ThirdCurse', 
             4:'FourthCurse'}    
@@ -19,7 +19,7 @@ class Repo:
     def __init__(self):
         if not hasattr(self, "_initialized"): 
             return
-        
+
     def SetDb(self, db_name):
         '''
         :param db_name: имя базы данных
@@ -30,19 +30,18 @@ class Repo:
         self.cursor = sq.GetCursor()
 
 ### GET
-    def GetPostByDiscipline(self, curse, discipline_name:str|None=None, discipline_id:int|None=None):
+    def GetPostsByDiscipline(self, discipline_id:int) -> tuple:
         '''
         Возвращает все посты указанной дисциплины или указанного id дисциплины, и указанного курса
-        
-        :param curse: Номер курса (1-4)
-        :param discipline_name: Название дисциплины (вернет False, если такой дисциплины нет (в этом курсе))
+        Если курсов нет, вернет []
+        :param discipline_id: ID дисциплины (вернет False, если такой дисциплины нет (в этом курсе))
         '''
-        if discipline_name == discipline_id == None: return (False, 'укажи хоть что-то')
+        if isinstance(discipline_id, int): return False 
+        if discipline_id > self.GetDisciplineIDs(): return False
+
+        curse=self.GetCurseByDisciplineID(discipline_id)
         
-        disciplines = self.GetDisciplinesNames(curse=curse)
-        if discipline_name not in disciplines: return (False, 'Такой дисциплины нет')
-        
-        posts = self.sq.Get(table=curseas[curse], conditions={'discipline_name':discipline_name}, fetch_all=True)
+        posts = self.sq.Get(table=curseas[curse], conditions={'discipline_id':discipline_id}, fetch_all=True)
         posts_list=[]
         
         for i in posts:
@@ -57,37 +56,37 @@ class Repo:
             }
             posts_list.append(new_value)
         
-        return (True, posts_list)
+        return posts_list
 
-    def GetDisciplinesNames(self, curse:int) -> list:
+    def GetDisciplineIDs(self, curse:int|None=None) -> list|int:
         '''
         Возврящает все дисциплины
+        Если курс не укажан, вернет ID последнего курса 
         
         :param curse: Номер курса (1-4)
         '''
-        disciplines = self.sq.Get(table="disciplines", conditions={"curse":curse}, fetch_all=True, return_column='discipline_name', element_only=True)
-        if disciplines == None:
+        
+        if curse:
+            disciplinesID = self.sq.Get(table="disciplines", conditions={"curse":curse}, fetch_all=True, return_column='id', element_only=True)
+            if disciplinesID == None:
+                return []
+            return disciplinesID
+        
+        disciplinesID = self.sq.GetLastRow(table="disciplines", id_column='id')
+        if disciplinesID == None:
             return []
-        return disciplines
-    
-    def GetDisciplineID(self, curse:int, discipline_name:str):
-        '''
-        Возвращает ID дисциплины
-        
-        :param curse: Номер курса (1-4)
-        :param discipline_name: Название дисциплины (вернет False, если такой дисциплины нет (в этом курсе))
-        '''
-        disciplines = self.GetDisciplinesNames(curse=curse)
-        if discipline_name not in disciplines: return (False, 'Такой дисциплины нет')
-        
-        disciplineID = self.sq.Get(table='discilines', conditions={'curse':curse, 'discipline_name':discipline_name}, return_column='id', element_only=True)
-        return disciplineID
+        return disciplinesID[0]
 
-    # def GetCurseByDisciplineID(self, dis)
+    def GetCurseByDisciplineID(self, discipline_id:int) -> int|None:
+        answer = self.sq.Get(table='disciplines', conditions={"id":discipline_id}, return_column='curse', element_only=True)
+        return answer
 
-    
+    def GetDisciplineName(self, discipline_id:int) -> str|None:
+        answer = self.sq.Get(table='disciplines', conditions={'discipline_id':discipline_id}, element_only=True)
+        return answer
+
 ### ADD
-    def AddDiscipline(self, curse:int, discipline_name:str) -> tuple[bool, str]:
+    def AddDiscipline(self, curse:int, discipline_name:str) -> bool:
         '''
         Добавляет новую дисциплину
         
@@ -95,16 +94,15 @@ class Repo:
         :param discipline_name: Название дисциплины (вернет False, если такая дисциплины есть (в этом курсе))
         '''
         disciplines = self.GetDisciplinesNames(curse=curse)
-        if discipline_name in disciplines: return (False, 'Такая дисциплина уже есть')
+        if discipline_name in disciplines: return False
         
         answer = self.sq.AddRow(table_name='disciplines', curse=curse, discipline_name=discipline_name)
-        return (answer, 'Успешно')
+        return answer
 
-
-    def AddPost(self, curse:int, discipline_name:str, text:str, title=None, file=None, photo=None, author=None, date=datetime.now()) -> tuple[bool, str]:
+    def AddPost(self, discipline_id:int, text:str, title=None, file=None, photo=None, author=None, date=datetime.now()) -> bool:
         '''
         Добавить новый пост
-        
+
         :param curse: Номер курса (1-4)
         :param discipline_name: Название дисциплины (вернет False, если такой дисциплины нет)
         :param text: имя базы данных
@@ -115,21 +113,38 @@ class Repo:
         :param date: имя базы данных
         '''
 
-        disciplines = self.GetDisciplinesNames(curse=curse)
-    
-        if discipline_name not in disciplines: return (False, 'Такой дисциплины нет')
-        answer = self.sq.AddRow(table_name=curseas[curse], 
-                                discipline_name=discipline_name,
-                                text=text,
-                                title=title, 
-                                file=file,
-                                photo=photo,
-                                author=author,
-                                date=date
-                                )
-        return (answer, 'Успешно')
+        if not isinstance(discipline_id, int): 
+            print('discipline_id не тот')
+            return False
+
+        # if isinstance() title
+        # if isinstance() file
+        # if isinstance() photo
+        # if isinstance() author
+
+        if discipline_id > self.GetDisciplineIDs(): return False
+
+        curse = self.GetCurseByDisciplineID(discipline_id)
+
+        answer = self.sq.AddRow(
+            table_name=curseas[curse], 
+            discipline_id=discipline_id,
+            text=str(text),
+            title=title, 
+            file=file,
+            photo=photo,
+            author=author,
+            date=date
+            )
+
+        return answer
+
+    def AddDiscipline(self, curse:int, discipline_name:str):
+        answer = self.sq.AddRow(table_name='disciplines', curse=curse, discipline_name=discipline_name)
+        return answer
 
 
+### Разное 
     def GenerateDefaultTables(self) -> bool:
         '''
         Вернет `True` если бд создались/уже есть
@@ -138,7 +153,7 @@ class Repo:
         '''
         a=self.sq.GenerateTable(
             table_name="FirstCurse",
-            discipline_name="TEXT",
+            discipline_id="INTEGER",
             title='TEXT',
             text='TEXT',
             file='TEXT',
@@ -150,7 +165,7 @@ class Repo:
 
         b=self.sq.GenerateTable(
             table_name="SecondCurse",
-            discipline_name="TEXT",
+            discipline_id="INTEGER",
             title='TEXT',
             text='TEXT',
             file='TEXT',
@@ -162,7 +177,7 @@ class Repo:
 
         c=self.sq.GenerateTable(
             table_name="ThirdCurse",
-            discipline_name="TEXT",
+            discipline_id="INTEGER",
             title='TEXT',
             text='TEXT',
             file='TEXT',
@@ -174,7 +189,7 @@ class Repo:
 
         d=self.sq.GenerateTable(
             table_name="FourthCurse",
-            discipline_name="TEXT",
+            discipline_id="INTEGER",
             title='TEXT',
             text='TEXT',
             file='TEXT',

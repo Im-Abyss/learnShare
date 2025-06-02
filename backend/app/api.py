@@ -98,18 +98,6 @@ test_posts = {
     ]
 }
 
-'''
-Поля в бд
-
-table_name="FirstCurse",
-            discipline_name="TEXT",
-            title='TEXT',
-            text='TEXT',
-            file='TEXT',
-            photo='TEXT',
-            author='TEXT',
-            date='TEXT'
-'''
 
 @app.get('/courses', 
          tags=['Пользовательская панель'], 
@@ -136,6 +124,8 @@ async def get_posts(discipline_id: int):
             status_code=404,
             detail="No posts found for this discipline"
         )
+        
+    posts = Repo().GetPostsByDiscipline(discipline_id=discipline_id)
     return test_posts.get(discipline_id, '')
 
 
@@ -143,9 +133,6 @@ async def get_posts(discipline_id: int):
           tags=['Пользовательская панель'], 
           description='Добавление поста')
 async def add_posts(disciplines_id: int, post: PostCreate):
-    # curse = Repo().GetCurse()
-    
-    # disciplines = Repo().GetDisciplines(curse=)
     
     if disciplines_id not in test_posts:
         test_posts[disciplines_id] = []

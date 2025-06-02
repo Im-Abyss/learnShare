@@ -191,6 +191,15 @@ class Sqlite:
             print(f"[ОШИБКА БД] {e}")
             return None
 
+    def GetLastRow(self, table: str, id_column: str = "id"):
+        try:
+            query = f'SELECT * FROM "{table}" ORDER BY "{id_column}" DESC LIMIT 1'
+            self.cursor.execute(query)
+            return self.cursor.fetchone()
+        except sqlite3.OperationalError as e:
+            print(f"[ОШИБКА БД] {e}")
+            return None
+
 #замена данных
     def Replace(self, table_name: str, updates: dict, conditions: dict = None,
             logic: str = "AND", method: str = "=") -> bool:
