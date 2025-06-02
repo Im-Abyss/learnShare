@@ -2,7 +2,7 @@ from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from .schemas import PostCreate, PostResponse
-# from .create_db import db
+from db import Repo
 
 
 app = FastAPI(title='LearnShare')
@@ -24,8 +24,6 @@ test_courses = [
     {'id': 3, 'name': '3 курс'},
     {'id': 4, 'name': '4 курс'}
 ]
-
-
 # Предметы. Тестовые данные, которые будут потом в БД
 test_disciplines = {
     1: [{'id': 1, 'name': 'Физика'}, 
@@ -100,7 +98,6 @@ test_posts = {
     ]
 }
 
-
 '''
 Поля в бд
 
@@ -146,6 +143,10 @@ async def get_posts(discipline_id: int):
           tags=['Пользовательская панель'], 
           description='Добавление поста')
 async def add_posts(discipline_id: int, post: PostCreate):
+    # curse = Repo().GetCurse()
+    
+    # disciplines = Repo().GetDisciplines(curse=)
+    
     if discipline_id not in test_posts:
         test_posts[discipline_id] = []
 

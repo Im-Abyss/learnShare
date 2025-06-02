@@ -16,9 +16,7 @@ class Sqlite:
         `isNotBotDatabase изнач. = False`
         '''
         if not hasattr(self, "_initialized"):   
-            print(db_name)
             self.db_name = db_name.replace('.db', '')
-            print(self.db_name)
             self.conn = sqlite3.connect(f'{self.db_name}.db')
             self.cursor = self.conn.cursor()
 
