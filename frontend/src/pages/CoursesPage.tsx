@@ -1,76 +1,88 @@
-import { useEffect, useState } from "react";
-import CourseCard from "@/components/CourseCard";
-import DisciplinesModal from "@/components/DisciplinesModal";
-import '../App.css';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import CourseCard from '../components/CourseCard';
+import '../App.css'
 
-interface Course {
-    id: number;
-    name: string;
+export interface Discipline {
+  id: number;
+  name: string;
 }
 
-export interface Discipline {  // Добавьте ключевое слово export
-    id: number;
-    name: string;
+interface Course {
+  id: number;
+  name: string;
 }
 
 export default function CoursesPage() {
-    const [courses, setCourses] = useState<Course[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
-    const [disciplines, setDisciplines] = useState<Discipline[]>([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [disciplines, setDisciplines] = useState<Record<number, Discipline[]>>({});
+  const [expandedCourses, setExpandedCourses] = useState<Set<number>>(new Set());
 
-    useEffect(() => {
-        const fetchCourses = async () => {
-            try {
-                const response = await fetch('http://localhost:8000/courses');
-                if (!response.ok) throw new Error('Ошибка загрузки курсов');
-                setCourses(await response.json());
-            } catch(err) {
-                setError(err instanceof Error ? err.message : 'Неизвестная ошибка');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchCourses();
-    }, []);
+  useEffect(() => {
+    fetch('http://localhost:8000/courses')
+      .then(response => response.json())
+      .then(data => setCourses(data));
+  }, []);
 
-    const handleCourseClick = async (courseId: number) => {
-        try {
-            const response = await fetch(`http://localhost:8000/courses/${courseId}/disciplines`);
-            if (!response.ok) throw new Error('Ошибка загрузки предметов');
-            setDisciplines(await response.json());
-            setSelectedCourse(courseId);
-            setIsModalOpen(true);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Ошибка загрузки');
-        }
-    };
+  const toggleCourse = (courseId: number) => {
+    const newSet = new Set(expandedCourses);
+    
+    if (newSet.has(courseId)) {
+      newSet.delete(courseId);
+    } else {
+      newSet.add(courseId);
 
-    if (loading) return <div>Загрузка...</div>;
-    if (error) return <div>Ошибка: {error}</div>;
+      if (!disciplines[courseId]) {
+        fetch(`http://localhost:8000/courses/${courseId}/disciplines`)
+          .then(response => response.json())
+          .then(data => {
+            setDisciplines(prev => ({ ...prev, [courseId]: data }));
+          });
+      }
+    }
+    
+    setExpandedCourses(newSet);
+  };
 
-    return (
-        <div className="courses-container">
-            <h1>Выберите курс</h1>
-            <div className="courses-grid">
-                {courses.map((course) => (
-                    <CourseCard 
-                        key={course.id} 
-                        id={course.id} 
-                        name={course.name}
-                        onClick={() => handleCourseClick(course.id)} 
-                    />
-                ))}
-            </div>
-            
-            <DisciplinesModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                courseId={selectedCourse}
-                disciplines={disciplines}
+  return (
+    <div className="courses-page">
+      <h1>Выберите курс</h1>
+      <div className="courses-container">
+        {courses.map(course => (
+          <div key={course.id} className="course-wrapper">
+            <CourseCard 
+              id={course.id}
+              name={course.name}
+              isExpanded={expandedCourses.has(course.id)}
+              onClick={() => toggleCourse(course.id)}
             />
-        </div>
-    );
+            
+            {expandedCourses.has(course.id) && (
+              <div className="disciplines-dropdown">
+                <ul className="disciplines-list">
+                  {disciplines[course.id]?.length > 0 ? (
+                    disciplines[course.id].map(discipline => (
+                      <li key={discipline.id} className="discipline-item">
+                        <Link 
+                          to={`/disciplines/${discipline.id}/posts`}
+                          state={{ disciplineName: discipline.name }}
+                          className="discipline-link"
+                        >
+                          {discipline.name}
+                        </Link>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="discipline-item empty">
+                      <span>Предметы не найдены</span>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

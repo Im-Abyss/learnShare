@@ -1,16 +1,19 @@
+import { MouseEvent } from 'react';
+
 interface CourseCardProps {
     id: number;
     name: string;
-    onClick: (courseId: number) => void; // Добавьте этот пропс
+    isExpanded: boolean;
+    onClick: () => void;
 }
 
-export default function CourseCard({ id, name, onClick }: CourseCardProps) {
+export default function CourseCard({ id, name, isExpanded, onClick }: CourseCardProps) {
     return (
-        <div className="course-card">
-            <h3>{name}</h3>
-            <button onClick={() => onClick(id)}> {/* Передаем id курса */}
-                Выбрать
-            </button>
+        <div className={`course-card ${isExpanded ? 'expanded' : ''}`} onClick={onClick}>
+            <div className="course-header">
+                <h3>{name}</h3>
+                <span className="arrow-icon">{isExpanded ? '▼' : '▶'}</span>
+            </div>
         </div>
     );
 }

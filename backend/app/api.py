@@ -27,12 +27,12 @@ test_courses = [
 
 # Предметы. Тестовые данные, которые будут потом в БД
 test_disciplines = {
-    1: [{'id': 1, 'name': 'Электроника'}, 
-        {'id': 2, 'name': 'Математика'}],
-    2: [{'id': 3, 'name': 'БЖД'},
-        {'id': 4, 'name': 'Материалловедение'}],
-    3: [{'id': 5, 'name': 'Пока предметов нет'}],
-    4: [{'id': 6, 'name': 'Пока предметов нет'}]
+    1: [{'id': 1, 'name': 'Физика'}, 
+        {'id': 2, 'name': 'Высшая математика'}],
+    2: [{'id': 3, 'name': 'Введение в инженерную деятельность'},
+        {'id': 4, 'name': 'Материалловедение'},
+        {'id': 5, 'name': 'Компьютерные технологии'},
+        {'id': 6, 'name': 'Инженерная и компьютерная графика'}]
 }
 
 
@@ -42,27 +42,58 @@ test_posts = {
     1: [
         {
             'id': 1,
-            'title': 'Это пост',
-            'content': 'Тексты, файлы, фото и т. д.',
-            'author': 'Слон',
+            'text': 'Пост по физике без фото и файлов',
+            'file': '',
+            'photo': '',
+            'author': 'Анонимный пост',
             'date': 'Дата поста'
-        },
+        }
     ],
     2: [
         {
-            'id': 2,
-            'title': 'Это тоже какой-то пост',
-            'content': 'Тексты, файлы, фото и т. д.',
-            'author': 'Автор поста',
+            'id': 1,
+            'text': 'Пересдать высшую математику можно будет до конца мая',
+            'file': '',
+            'photo': '',
+            'author': 'Анонимный пост',
             'date': 'Дата поста'
         }
     ],
     3: [
         {
-            'id': 3,
-            'title': 'Ещё какой-то пост',
-            'content': 'Тексты, файлы, фото и т. д.',
-            'author': 'Автор поста',
+            'id': 1,
+            'text': 'Формулы для задания по линейной регрессии',
+            'file': '',
+            'photo': 'https://sun9-15.userapi.com/impg/l8UyBbmZrS59mWMISH6WvtXcJrvTD8CAOGzLbA/8i7OZU_JdSs.jpg?size=810x1080&quality=95&sign=516c77f5facddc344aa619fe0df22097&type=album',
+            'author': 'Анонимный пост',
+            'date': 'Дата поста'
+        },
+        {
+            'id': 2,
+            'text': 'Второй пост для этого же предмета',
+            'file': '',
+            'photo': 'https://sun9-15.userapi.com/impg/l8UyBbmZrS59mWMISH6WvtXcJrvTD8CAOGzLbA/8i7OZU_JdSs.jpg?size=810x1080&quality=95&sign=516c77f5facddc344aa619fe0df22097&type=album',
+            'author': 'Анонимный пост',
+            'date': 'Дата поста'
+        }
+    ],
+    4: [
+        {
+            'id': 1,
+            'text': 'Третья лаба',
+            'file': '',
+            'photo': 'https://sun9-19.userapi.com/impg/wpMQICaB6vXm0IDCYAII5IV00c8yzpSIq8YLLg/AVu1m8tsncg.jpg?size=810x1080&quality=95&sign=c73a23707a9a3c95269f241c6099c32b&type=album',
+            'author': 'Анонимный пост',
+            'date': 'Дата поста'
+        }
+    ],
+    6: [
+        {
+            'id': 1,
+            'text': 'Задание по инженерной графике',
+            'file': '',
+            'photo': 'https://sun9-3.userapi.com/impg/5gTuuxUaNXPD9s1DmHkuH98fOwE3g0VNJz131A/nqwkCYHjJIo.jpg?size=810x1080&quality=95&sign=29bff1d480b08cc46579ef2b0331ab39&type=album',
+            'author': 'Анонимный пост',
             'date': 'Дата поста'
         }
     ]
@@ -85,7 +116,7 @@ async def get_disciplines(course_id: int):
     return test_disciplines.get(course_id, '')
 
 
-@app.get('/disciplines/{disciplines_id}/posts', 
+@app.get('/disciplines/{discipline_id}/posts', 
          tags=['Пользовательская панель'], 
          description='Возвращает посты по выбранному премету')
 async def get_posts(discipline_id: int):
@@ -101,4 +132,18 @@ async def get_posts(discipline_id: int):
           tags=['Пользовательская панель'], 
           description='Добавление поста')
 async def add_posts(discipline_id: int, post: PostCreate):
-    pass
+    if discipline_id not in test_posts:
+        test_posts[discipline_id] = []
+
+    new_post = {
+        'id': len(test_posts[discipline_id]) + 1,
+        'text': post.text,
+        'file': post.file,
+        'photo': post.photo,
+        'author': post.author,
+        'date': post.date or datetime.now().strftime("%d.%m.%Y")
+    }
+
+    test_posts[discipline_id].append(new_post)
+    
+    return new_post

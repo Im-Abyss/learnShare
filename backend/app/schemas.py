@@ -5,10 +5,11 @@ from typing import Optional
 
 class PostCreate(BaseModel):
 
-    title: str
-    content: str
+    text: str
+    file: str = None
+    photo: str = None
     author: str
-    date: Optional[str] = None
+    date: str = None
 
 
 class PostResponse(PostCreate):

@@ -8,7 +8,9 @@
   --shadow-color: rgba(0, 0, 0, 0.1);
   --modal-bg: white;
   --modal-text: #1a1a1a;
-  --border-color: #eee;
+  --primary-color: #4285f4;
+  --primary-dark: #3367d6;
+  --text-secondary: #666;
 }
 
 [data-theme="dark"] {
@@ -21,7 +23,9 @@
   --shadow-color: rgba(0, 0, 0, 0.3);
   --modal-bg: #2d2d2d;
   --modal-text: #ffffff;
-  --border-color: #444;
+  --primary-color: #636363;
+  --primary-dark: #2d2d2d;
+  --text-secondary: #aaa;
 }
 
 body {
@@ -34,29 +38,9 @@ body {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
 }
 
-.course-card {
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  background-color: var(--card-bg);
-}
-
-.course-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 8px var(--shadow-color);
-}
-
-.read-the-docs {
-  color: var(--text-color);
-  opacity: 0.7;
-}
-
+/* Компонент темы */
 .theme-toggle {
   position: fixed;
   top: 20px;
@@ -79,11 +63,85 @@ body {
 
 .theme-icon {
   font-size: 2rem;
-  line-height: 1; /* Убирает лишнее пространство вокруг иконки */
+  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%; /* Занимает всю высоту родителя */
-  width: 100%; /* Занимает всю ширину родителя */
+  height: 100%;
+  width: 100%;
 }
 
+/* Страница курсов */
+.courses-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.courses-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.course-wrapper {
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--card-bg);
+  transition: all 0.3s;
+}
+
+.course-card {
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.course-card.expanded {
+  background-color: var(--hover-bg);
+}
+
+.course-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.course-header h3 {
+  margin: 0;
+}
+
+.arrow-icon {
+  font-size: 1.2rem;
+}
+
+.disciplines-dropdown {
+  background-color: var(--card-bg);
+  border-top: 1px solid var(--card-border);
+  padding: 10px 20px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.disciplines-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.discipline-item {
+  padding: 8px 0;
+}
+
+.discipline-link {
+  display: block;
+  padding: 8px 15px;
+  color: var(--text-color);
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.discipline-link:hover {
+  background-color: var(--hover-bg);
+}
