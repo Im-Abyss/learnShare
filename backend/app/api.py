@@ -138,6 +138,7 @@ async def get_posts(discipline_id: int):
           tags=['Пользовательская панель'], 
           description='Добавление поста')
 async def add_posts(disciplines_id: int, post: PostCreate):
+    disciplines = Repo().GetDisciplineIDs()
     
     if disciplines_id not in test_posts:
         test_posts[disciplines_id] = []
@@ -151,6 +152,13 @@ async def add_posts(disciplines_id: int, post: PostCreate):
         'date': post.date or datetime.now().strftime("%d.%m.%Y")
     }
 
-    test_posts[disciplines_id].append(new_post)
+    answer = Repo().AddPost(
+        discipline_id = disciplines_id,
+        text = post.text,
+        file = post.file,
+        photo = post.photo,
+        author = post.author,
+        date = post.date or datetime.now().strftime("%d.%m.%Y")
+    )
     
-    return new_post
+    if answer: return new_post
