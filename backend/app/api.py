@@ -38,7 +38,7 @@ test_disciplines = {
 # Посты. Тестовые данные, которые будут потом в БД
 test_posts = {
     # ключ - Название дисциплины
-    "Электротехника": [
+    "1": [
         {
             'id': 1,
             'text': 'Пост по физике без фото и файлов',
@@ -48,7 +48,7 @@ test_posts = {
             'date': 'Дата поста'
         }
     ],
-    "Метрология": [
+    "2": [
         {
             'id': 1,
             'text': 'Пересдать высшую математику можно будет до конца мая',
@@ -58,7 +58,7 @@ test_posts = {
             'date': 'Дата поста'
         }
     ],
-    "Физика": [
+    "3": [
         {
             'id': 1,
             'text': 'Формулы для задания по линейной регрессии',
@@ -142,16 +142,16 @@ async def get_posts(discipline_id: int):
 @app.post('/disciplines/{disciplines_id}/posts/add',
           tags=['Пользовательская панель'], 
           description='Добавление поста')
-async def add_posts(discipline_id: int, post: PostCreate):
+async def add_posts(disciplines_id: int, post: PostCreate):
     # curse = Repo().GetCurse()
     
     # disciplines = Repo().GetDisciplines(curse=)
     
-    if discipline_id not in test_posts:
-        test_posts[discipline_id] = []
+    if disciplines_id not in test_posts:
+        test_posts[disciplines_id] = []
 
     new_post = {
-        'id': len(test_posts[discipline_id]) + 1,
+        'id': len(test_posts[disciplines_id]) + 1,
         'text': post.text,
         'file': post.file,
         'photo': post.photo,
@@ -159,6 +159,6 @@ async def add_posts(discipline_id: int, post: PostCreate):
         'date': post.date or datetime.now().strftime("%d.%m.%Y")
     }
 
-    test_posts[discipline_id].append(new_post)
+    test_posts[disciplines_id].append(new_post)
     
     return new_post

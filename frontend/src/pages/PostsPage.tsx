@@ -162,14 +162,14 @@ export default function PostsPage() {
           
           <input
             type="text"
-            placeholder="Файл (ссылка или название)"
+            placeholder="Файл (ссылка на диск)"
             value={newPost.file}
             onChange={(e) => setNewPost({...newPost, file: e.target.value})}
           />
           
           <input
             type="text"
-            placeholder="Фото (ссылка или название)"
+            placeholder="Фото (URL адрес)"
             value={newPost.photo}
             onChange={(e) => setNewPost({...newPost, photo: e.target.value})}
           />
