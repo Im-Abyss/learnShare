@@ -4,6 +4,7 @@ import './PostsPage.css';
 
 interface Post {
   id: number;
+  title: string;
   text: string;
   file: string;
   photo: string;
@@ -13,6 +14,7 @@ interface Post {
 }
 
 interface NewPost {
+  title: string;
   text: string;
   file: string;
   photo: string;
@@ -35,11 +37,16 @@ export default function PostsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newPost, setNewPost] = useState<NewPost>({
+    title: '',
     text: '',
     file: '',
     photo: '',
     author: 'Анонимный пост',
   });
+
+  const [postToDelete, setPostToDelete] = useState<number | null>(null)
+  const [showDeleteDiscipline, setShowDeleteDiscipline] = useState(false);
+  const [isDeletingDiscipline, setIsDeletingDiscipline] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -98,6 +105,7 @@ export default function PostsPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          title: newPost.title.trim(),
           text: newPost.text.trim(),
           file: newPost.file.trim() || '',
           photo: newPost.photo.trim() || '',
@@ -117,6 +125,7 @@ export default function PostsPage() {
       const addedPost = await response.json();
       setPosts([addedPost, ...posts]);
       setNewPost({
+        title: '',
         text: '',
         file: '',
         photo: '',
@@ -135,6 +144,61 @@ export default function PostsPage() {
   if (loading) return <div className="loading-message">Загрузка...</div>;
   if (error) return <div className="error-message">{error}</div>;
 
+  const handleDeletePost = async (postId: number) => {
+    if (postToDelete === null) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:8000/disciplines/${disciplineId}/posts/${postToDelete}/delete`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Ошибка при удалении поста');
+      }
+
+      setPosts(posts.filter(post => post.id !== postToDelete));
+      setPostToDelete(null);
+    } catch (err) {
+      console.error('Ошибка при удалении поста:', err);
+      alert('Не удалось удалить пост');
+      setPostToDelete(null);
+    }
+  };
+
+  const handleDeleteDiscipline = async () => {
+    if (!disciplineId) return;
+    
+    if (!window.confirm(`Вы уверены, что хотите удалить дисциплину "${disciplineName}"? Все посты в ней будут удалены.`)) {
+      return;
+    }
+
+    setIsDeletingDiscipline(true);
+    try {
+      const response = await fetch(
+        `http://localhost:8000/disciplines/${disciplineId}/delete`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Ошибка при удалении дисциплины');
+      }
+
+      // После успешного удаления перенаправляем на главную
+      navigate('/');
+    } catch (error) {
+      console.error('Ошибка при удалении дисциплины:', error);
+      alert('Не удалось удалить дисциплину');
+    } finally {
+      setIsDeletingDiscipline(false);
+      setShowDeleteDiscipline(false);
+    }
+  };
+
   return (
     <div className="posts-container">
       <h1>{disciplineName}</h1> {}
@@ -148,12 +212,53 @@ export default function PostsPage() {
         >
           {showAddForm ? 'Отмена' : 'Добавить пост'}
         </button>
+        <button 
+          onClick={() => setShowDeleteDiscipline(true)}
+          className="delete-discipline-button"
+          disabled={isDeletingDiscipline}
+        >
+          {isDeletingDiscipline ? 'Удаление...' : 'Удалить дисциплину'}
+        </button>
       </div>
+
+      {showDeleteDiscipline && (
+        <div className="modal-overlay">
+          <div className="delete-discipline-modal">
+            <h3>Удаление дисциплины</h3>
+            <p>Вы уверены, что хотите удалить дисциплину "{disciplineName}"?</p>
+            <p>Все посты в этой дисциплине будут удалены безвозвратно.</p>
+            
+            <div className="modal-buttons">
+              <button 
+                onClick={handleDeleteDiscipline}
+                className="confirm-delete-button"
+                disabled={isDeletingDiscipline}
+              >
+                Да, удалить
+              </button>
+              <button 
+                onClick={() => setShowDeleteDiscipline(false)}
+                className="cancel-button"
+                disabled={isDeletingDiscipline}
+              >
+                Отмена
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showAddForm && (
         <div className="add-post-form">
           <h2>Добавить новый пост</h2>
           
+          <input
+            type="text"
+            placeholder="Заголовок поста"
+            value={newPost.title}
+            onChange={(e) => setNewPost({...newPost, title: e.target.value})}
+          />
+
           <textarea
             placeholder="Текст поста"
             value={newPost.text}
@@ -217,7 +322,35 @@ export default function PostsPage() {
               <div className="post-meta">
                 <span>Автор: {post.author}</span>
                 <span>Дата: {post.date}</span>
+                <button 
+                  onClick={() => setPostToDelete(post.id === postToDelete ? null : post.id)}
+                  className="delete-post-button"
+                >
+                  {post.id === postToDelete ? 'Отмена' : 'Удалить'}
+                </button>
               </div>
+
+              {/* Окно подтверждения удаления */}
+                {post.id === postToDelete && (
+                  <div className="delete-confirmation">
+                    <p>Вы уверены, что хотите удалить этот пост?</p>
+                    <div className="confirmation-buttons">
+                      <button 
+                        onClick={() => handleDeletePost(post.id)}
+                        className="confirm-delete-button"
+                      >
+                        Да, удалить
+                      </button>
+                      <button 
+                        onClick={() => setPostToDelete(null)}
+                        className="cancel-delete-button"
+                      >
+                        Отмена
+                      </button>
+                    </div>
+                  </div>
+                )}
+
             </div>
           ))
         ) : (

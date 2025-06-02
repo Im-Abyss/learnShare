@@ -62,9 +62,9 @@ class Repo:
                 'author':i[6],
                 'date':i[7]
             }
-            print(new_value)
+            # print(new_value)
             posts_list.append(new_value)
-        print(posts_list)
+        # print(posts_list)
         return posts_list
 
     def GetDisciplineIDs(self, curse:int|None=None) -> list|int:
