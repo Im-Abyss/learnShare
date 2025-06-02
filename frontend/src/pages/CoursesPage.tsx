@@ -21,12 +21,25 @@ export default function CoursesPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [addingCourse, setAddingCourse] = useState<number | null>(null);
   
-
   useEffect(() => {
     fetch('http://localhost:8000/courses')
       .then(response => response.json())
       .then(data => setCourses(data));
   }, []);
+
+  // Новая функция для загрузки дисциплин
+  const fetchDisciplines = async (courseId: number) => {
+    try {
+      const response = await fetch(`http://localhost:8000/courses/${courseId}/disciplines`);
+      if (!response.ok) {
+        throw new Error('Ошибка загрузки дисциплин');
+      }
+      const data = await response.json();
+      setDisciplines(prev => ({ ...prev, [courseId]: data }));
+    } catch (error) {
+      console.error('Ошибка:', error);
+    }
+  };
 
   const toggleCourse = (courseId: number) => {
     const newSet = new Set(expandedCourses);
@@ -35,20 +48,15 @@ export default function CoursesPage() {
       newSet.delete(courseId);
     } else {
       newSet.add(courseId);
-
       if (!disciplines[courseId]) {
-        fetch(`http://localhost:8000/courses/${courseId}/disciplines`)
-          .then(response => response.json())
-          .then(data => {
-            setDisciplines(prev => ({ ...prev, [courseId]: data }));
-          });
+        fetchDisciplines(courseId); // Используем новую функцию
       }
     }
     
     setExpandedCourses(newSet);
   };
 
-    const handleAddDiscipline = async (courseId: number) => {
+  const handleAddDiscipline = async (courseId: number) => {
     if (!newDisciplineName.trim()) {
       alert('Название дисциплины не может быть пустым');
       return;
@@ -63,7 +71,7 @@ export default function CoursesPage() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ name: newDisciplineName }),
+          body: JSON.stringify({ title: newDisciplineName }),
         }
       );
 
@@ -71,13 +79,8 @@ export default function CoursesPage() {
         throw new Error('Ошибка при добавлении дисциплины');
       }
 
-      const newDiscipline = await response.json();
-      
-      // Обновляем список дисциплин
-      setDisciplines(prev => ({
-        ...prev,
-        [courseId]: [...(prev[courseId] || []), newDiscipline]
-      }));
+      // Вместо получения новой дисциплины просто обновляем список
+      await fetchDisciplines(courseId);
       
       // Сбрасываем состояние
       setNewDisciplineName('');
@@ -90,6 +93,7 @@ export default function CoursesPage() {
     }
   };
 
+  // Остальной код компонента остается без изменений
   return (
     <div className="courses-page">
       <h1>Выберите курс</h1>
@@ -124,7 +128,6 @@ export default function CoursesPage() {
                     </li>
                   )}
 
-                  {/* Форма добавления новой дисциплины */}
                   <li className="discipline-item">
                     {addingCourse === course.id ? (
                       <div className="add-discipline-form">

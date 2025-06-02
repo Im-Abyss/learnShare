@@ -27,6 +27,9 @@ export default function PostsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { disciplineId } = useParams<{ disciplineId: string }>();
   
+  // Добавляем courseId из location.state
+  const [courseId, setCourseId] = useState<number | null>(null);
+  
   // Состояние для названия дисциплины
   const [disciplineName, setDisciplineName] = useState<string>(
     location.state?.disciplineName || 'Загрузка...'
@@ -54,9 +57,12 @@ export default function PostsPage() {
         setLoading(true);
         setError(null);
 
-        // Устанавливаем название дисциплины из location.state
+        // Устанавливаем название дисциплины и courseId из location.state
         if (location.state?.disciplineName) {
           setDisciplineName(location.state.disciplineName);
+        }
+        if (location.state?.courseId) {
+          setCourseId(location.state.courseId);
         }
 
         // Загружаем посты для дисциплины
@@ -169,7 +175,7 @@ export default function PostsPage() {
   };
 
   const handleDeleteDiscipline = async () => {
-    if (!disciplineId) return;
+    if (!disciplineId || !courseId) return;
     
     if (!window.confirm(`Вы уверены, что хотите удалить дисциплину "${disciplineName}"? Все посты в ней будут удалены.`)) {
       return;
@@ -178,7 +184,7 @@ export default function PostsPage() {
     setIsDeletingDiscipline(true);
     try {
       const response = await fetch(
-        `http://localhost:8000/disciplines/${disciplineId}/delete`,
+        `http://localhost:8000/courses/${courseId}/disciplines/${disciplineId}/delete`,
         {
           method: 'DELETE',
         }

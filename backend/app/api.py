@@ -73,7 +73,6 @@ async def delete_disciplines(discipline_id: int):
          tags=['Пользовательская панель'], 
          description='Возвращает посты по выбранному премету')
 async def get_posts(discipline_id: int):
-        
     posts = Repo().GetPostsByDiscipline(discipline_id=discipline_id)
     return sorted(posts, key=lambda x: x["id"], reverse=True)
 

@@ -1,9 +1,9 @@
 from .Database import Sqlite
 from datetime import datetime
-courseas =  {1:'Firstcourse', 
-            2:'Secondcourse', 
-            3:'Thirdcourse', 
-            4:'Fourthcourse'}    
+courseas =  {1:'FirstCourse', 
+            2:'SecondCourse', 
+            3:'ThirdCourse', 
+            4:'FourthCourse'}    
 
 
 
