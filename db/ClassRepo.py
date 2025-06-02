@@ -29,15 +29,6 @@ class Repo:
         self.cursor = self.sq.GetCursor()
         self._initialized = True
 
-    # def SetDb(self, db_name):
-    #     '''
-    #     :param db_name: имя базы данных
-    #     '''
-    #     self.db_name = db_name
-    #     self.sq = Sqlite(db_name=db_name)
-    #     self.connect = self.sq.GetConnent()
-    #     self.cursor = self.sq.GetCursor()
-
     ### GET
     def GetPostsByDiscipline(self, discipline_id:int) -> list:
         '''
@@ -86,14 +77,30 @@ class Repo:
         return disciplinesID[0]
 
     def GetCurseByDisciplineID(self, discipline_id:int) -> int|None:
+        '''
+        Возвращает курс в котором находится данная дисциплина
+        
+        :param discipline_id: ID дисциплины
+        '''
         answer = self.sq.Get(table='disciplines', 
                              conditions={"id":discipline_id}, 
                              return_column='curse', element_only=True)
         return answer
 
     def GetDisciplineName(self, discipline_id:int) -> str|None:
+        '''
+        Возвращает Имя дисциплины по ее ID
+        
+        :param discipline_id: ID дисциплины
+        '''
         answer = self.sq.Get(table='disciplines', 
                              conditions={'id':discipline_id}, 
+                             return_column='discipline_name', element_only=True)
+        return answer
+    
+    def GetDisciplinesNamesByCurse(self, curse) -> list|None:
+        answer = self.sq.Get(table='disciplines', 
+                             conditions={"curse":curse}, 
                              return_column='discipline_name', element_only=True)
         return answer
     
@@ -151,9 +158,9 @@ class Repo:
 
         return answer
 
-    def AddDiscipline(self, curse:int, discipline_name:str):
-        answer = self.sq.AddRow(table_name='disciplines', curse=curse, discipline_name=discipline_name)
-        return answer
+
+#
+
 
 
 ### Разное 
