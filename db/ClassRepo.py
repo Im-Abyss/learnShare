@@ -105,12 +105,12 @@ class Repo:
 
         :param curse: Номер курса (1-4)
         :param discipline_name: Название дисциплины (вернет False, если такой дисциплины нет)
-        :param text: имя базы данных
-        :param title: имя базы данных
-        :param file: имя базы данных
-        :param photo: имя базы данных
-        :param author: имя базы данных
-        :param date: имя базы данных
+        :param text: Текст поста
+        :param title: Title поста
+        :param file: файл прикрепленный к посту
+        :param photo: фото прикрепленное к посту
+        :param author: автор поста
+        :param date: дата создания поста
         '''
 
         if not isinstance(discipline_id, int): 
