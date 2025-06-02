@@ -124,14 +124,14 @@ async def get_disciplines(course_id: int):
     return disciplines
 
 
-@app.get('/courses/{course_id}/disciplines/add', 
+@app.post('/courses/{course_id}/disciplines/add', 
          tags=['Пользовательская панель'], 
          description='Добавляет дисциплину к выбранному курсу')
 async def add_disciplines(course_id: int, discipline: DisciplineCreate):
     pass
 
 
-@app.get('/courses/{course_id}/disciplines/{discipline_id}/delete', 
+@app.delete('/courses/{course_id}/disciplines/{discipline_id}/delete', 
          tags=['Пользовательская панель'], 
          description='Удаляет выбранную дисциплину')
 async def delete_disciplines(course_id: int):
@@ -175,7 +175,7 @@ async def add_posts(disciplines_id: int, post: PostCreate):
     if answer: return new_post
 
 
-@app.post('/disciplines/{disciplines_id}/posts/{posts_id}/delete',
+@app.delete('/disciplines/{disciplines_id}/posts/{posts_id}/delete',
           tags=['Пользовательская панель'], 
           description='Удаление поста')
 async def delete_posts(disciplines_id: int, posts_id: int):
