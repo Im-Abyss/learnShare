@@ -110,9 +110,14 @@ async def get_courses():
          tags=['Пользовательская панель'], 
          description='Возвращает предметы по выбранному курсу')
 async def get_disciplines(course_id: int):
-    if course_id not in test_disciplines:
+
+    disciplines = Repo().GetDisciplineIDs(curse=course_id)
+
+    print(f'Предметы - {disciplines}')
+
+    if course_id not in disciplines:
         raise HTTPException(status_code=404, detail="Course not found")
-    return test_disciplines.get(course_id, '')
+    return disciplines
 
 
 @app.get('/disciplines/{discipline_id}/posts', 
@@ -126,7 +131,7 @@ async def get_posts(discipline_id: int):
         )
         
     posts = Repo().GetPostsByDiscipline(discipline_id=discipline_id)
-    return test_posts.get(discipline_id, '')
+    return posts
 
 
 @app.post('/disciplines/{disciplines_id}/posts/add',
