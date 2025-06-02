@@ -5,31 +5,40 @@ curseas =  {1:'FirstCurse',
             3:'ThirdCurse', 
             4:'FourthCurse'}    
 
+
+
 class Repo:
     '''
     Класс отвечающий за чтение/запись/изменение данных постов 
     '''
     # Singleton Init
     _instance = None
+    
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
     def __init__(self):
-        if not hasattr(self, "_initialized"): 
+        if getattr(self, "_initialized", False):
             return
 
-    def SetDb(self, db_name):
-        '''
-        :param db_name: имя базы данных
-        '''
-        self.db_name = db_name
-        self.sq = sq = Sqlite(db_name=db_name)
-        self.connect = sq.GetConnent()
-        self.cursor = sq.GetCursor()
+        self.db_name = "Database"
+        self.sq = Sqlite(db_name=self.db_name)
+        self.connect = self.sq.GetConnent()
+        self.cursor = self.sq.GetCursor()
+        self._initialized = True
 
-### GET
+    # def SetDb(self, db_name):
+    #     '''
+    #     :param db_name: имя базы данных
+    #     '''
+    #     self.db_name = db_name
+    #     self.sq = Sqlite(db_name=db_name)
+    #     self.connect = self.sq.GetConnent()
+    #     self.cursor = self.sq.GetCursor()
+
+    ### GET
     def GetPostsByDiscipline(self, discipline_id:int) -> tuple:
         '''
         Возвращает все посты указанной дисциплины или указанного id дисциплины, и указанного курса
@@ -65,7 +74,6 @@ class Repo:
         
         :param curse: Номер курса (1-4)
         '''
-        
         if curse:
             disciplinesID = self.sq.Get(table="disciplines", conditions={"curse":curse}, fetch_all=True, return_column='id', element_only=True)
             if disciplinesID == None:
@@ -84,8 +92,8 @@ class Repo:
     def GetDisciplineName(self, discipline_id:int) -> str|None:
         answer = self.sq.Get(table='disciplines', conditions={'discipline_id':discipline_id}, element_only=True)
         return answer
-
-### ADD
+    
+    ### ADD
     def AddDiscipline(self, curse:int, discipline_name:str) -> bool:
         '''
         Добавляет новую дисциплину
@@ -204,6 +212,7 @@ class Repo:
             curse="INTEGER",
             discipline_name="TEXT"
         )
-        return a and b and c and d and e
+        # return a and b and c and d and e
+        return True
         #Если хоть одно будет False   return -> False
     
