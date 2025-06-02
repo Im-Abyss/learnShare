@@ -86,11 +86,15 @@ class Repo:
         return disciplinesID[0]
 
     def GetCurseByDisciplineID(self, discipline_id:int) -> int|None:
-        answer = self.sq.Get(table='disciplines', conditions={"id":discipline_id}, return_column='curse', element_only=True)
+        answer = self.sq.Get(table='disciplines', 
+                             conditions={"id":discipline_id}, 
+                             return_column='curse', element_only=True)
         return answer
 
     def GetDisciplineName(self, discipline_id:int) -> str|None:
-        answer = self.sq.Get(table='disciplines', conditions={'discipline_id':discipline_id}, element_only=True)
+        answer = self.sq.Get(table='disciplines', 
+                             conditions={'id':discipline_id}, 
+                             return_column='discipline_name', element_only=True)
         return answer
     
     ### ADD
@@ -125,10 +129,10 @@ class Repo:
             print('discipline_id не тот')
             return False
 
-        # if isinstance() title
-        # if isinstance() file
-        # if isinstance() photo
-        # if isinstance() author
+        # if not isinstance() title
+        # if not isinstance() file
+        # if not isinstance() photo
+        # if not isinstance() author
 
         if discipline_id > self.GetDisciplineIDs(): return False
 

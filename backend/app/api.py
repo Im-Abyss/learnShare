@@ -111,12 +111,17 @@ async def get_courses():
          description='Возвращает предметы по выбранному курсу')
 async def get_disciplines(course_id: int):
 
-    disciplines = Repo().GetDisciplineIDs(curse=course_id)
-
-    print(f'Предметы - {disciplines}')
-
-    if course_id not in disciplines:
+    disciplines_ids = Repo().GetDisciplineIDs(curse=course_id)
+    if course_id not in disciplines_ids:
         raise HTTPException(status_code=404, detail="Course not found")
+    
+    disciplines = []
+    for discipline_id in disciplines_ids:
+        name = Repo().GetDisciplineName(discipline_id=discipline_id)
+        data = {'id':discipline_id, 'name': name}
+        disciplines.append(data)
+        
+    print(disciplines)
     return disciplines
 
 
