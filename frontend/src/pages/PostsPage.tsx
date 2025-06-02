@@ -22,6 +22,7 @@ interface NewPost {
 export default function PostsPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { disciplineId } = useParams<{ disciplineId: string }>();
   
   // Состояние для названия дисциплины
@@ -88,18 +89,10 @@ export default function PostsPage() {
       return;
     }
 
-    try {
-      const url = `http://localhost:8000/disciplines/${disciplineId}/posts/add`;
-      
-      console.log('Отправляемые данные:', {
-        text: newPost.text.trim(),
-        file: newPost.file.trim() || '',
-        photo: newPost.photo.trim() || '',
-        author: newPost.author.trim() || 'Анонимный пост',
-        // discipline_id и date больше не отправляем в теле
-      });
+    setIsSubmitting(true);
 
-      const response = await fetch(url, {
+    try {
+      const response = await fetch(`http://localhost:8000/disciplines/${disciplineId}/posts/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,29 +102,20 @@ export default function PostsPage() {
           file: newPost.file.trim() || '',
           photo: newPost.photo.trim() || '',
           author: newPost.author.trim() || 'Анонимный пост',
-          // Убрали discipline_id и date - сервер сам их установит
         }),
       });
 
       if (!response.ok) {
-        // Пытаемся получить детальную информацию об ошибке
-        let errorDetails = 'Ошибка сервера без дополнительной информации';
-        try {
-          const errorData = await response.json();
-          errorDetails = errorData.detail || JSON.stringify(errorData);
-        } catch (e) {
-          errorDetails = `Статус ошибки: ${response.status}`;
-        }
-        throw new Error(errorDetails);
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.detail || 
+          errorData?.message || 
+          `Ошибка сервера: ${response.status}`
+        );
       }
 
       const addedPost = await response.json();
-      console.log('Добавленный пост:', addedPost);
-      
-      // Обновляем состояние
       setPosts([addedPost, ...posts]);
-      
-      // Сбрасываем форму
       setNewPost({
         text: '',
         file: '',
@@ -141,17 +125,10 @@ export default function PostsPage() {
       setShowAddForm(false);
 
     } catch (err) {
-      console.error('Полная ошибка:', err);
-      
-      // Улучшенное отображение ошибки
-      let errorMessage = 'Неизвестная ошибка';
-      if (err instanceof Error) {
-        errorMessage = err.message;
-      } else if (typeof err === 'object' && err !== null) {
-        errorMessage = JSON.stringify(err);
-      }
-      
-      alert(`Ошибка при добавлении поста: ${errorMessage}`);
+      console.error('Ошибка при добавлении поста:', err);
+      alert(`Ошибка: ${err instanceof Error ? err.message : 'Неизвестная ошибка'}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -205,7 +182,12 @@ export default function PostsPage() {
             onChange={(e) => setNewPost({...newPost, author: e.target.value})}
           />
           
-          <button onClick={handleAddPost}>Опубликовать</button>
+          <button 
+            onClick={handleAddPost}
+            disabled={isSubmitting || !newPost.text.trim()}
+          >
+            {isSubmitting ? 'Отправка...' : 'Опубликовать'}
+          </button>
         </div>
       )}
       
