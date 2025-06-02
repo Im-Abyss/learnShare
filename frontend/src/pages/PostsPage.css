@@ -42,6 +42,7 @@
 }
 
 .post-card {
+  position: relative;
   border: 1px solid var(--card-border);
   border-radius: 8px;
   padding: 20px;
@@ -163,4 +164,168 @@
   padding: 40px;
   color: var(--text-secondary);
   font-style: italic;
+}
+
+.post-title-container {
+  background-color: #f0f0f0;
+  border-radius: 15px;
+  padding: 8px 15px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+}
+
+.post-title {
+  margin: 0;
+  color: #333;
+  font-size: 1.2em;
+}
+
+/* Стили для кнопки удаления */
+.delete-post-button {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 10px;
+}
+
+.delete-post-button:hover {
+  background-color: #ff1a1a;
+}
+
+/* Стили для окна подтверждения удаления (тёмная тема) */
+.delete-confirmation {
+  background-color: #2d2d2d;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.delete-confirmation p {
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: #e0e0e0;
+}
+
+.confirmation-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-delete-button {
+  background-color: #d32f2f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.confirm-delete-button:hover {
+  background-color: #b71c1c;
+  transform: translateY(-1px);
+}
+
+.cancel-delete-button {
+  background-color: #424242;
+  color: #e0e0e0;
+  border: 1px solid #555;
+  border-radius: 5px;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-delete-button:hover {
+  background-color: #333;
+  border-color: #666;
+  transform: translateY(-1px);
+}
+
+/* Стили для кнопки удаления дисциплины */
+.delete-discipline-button {
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 10px;
+}
+
+.delete-discipline-button:hover {
+  background-color: #ff5252;
+}
+
+.delete-discipline-button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+/* Стили для модального окна */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.delete-discipline-modal {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.delete-discipline-modal h3 {
+  margin-top: 0;
+  color: #d32f2f;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Стили для группы кнопок */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+  .delete-discipline-modal {
+    background-color: #333;
+    color: #e0e0e0;
+  }
+  
+  .delete-discipline-button {
+    background-color: #d32f2f;
+  }
+  
+  .delete-discipline-button:hover {
+    background-color: #b71c1c;
+  }
+  
+  .delete-discipline-modal h3 {
+    color: #ff6b6b;
+  }
 }

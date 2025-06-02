@@ -17,6 +17,10 @@ export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [disciplines, setDisciplines] = useState<Record<number, Discipline[]>>({});
   const [expandedCourses, setExpandedCourses] = useState<Set<number>>(new Set());
+  const [newDisciplineName, setNewDisciplineName] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
+  const [addingCourse, setAddingCourse] = useState<number | null>(null);
+  
 
   useEffect(() => {
     fetch('http://localhost:8000/courses')
@@ -42,6 +46,48 @@ export default function CoursesPage() {
     }
     
     setExpandedCourses(newSet);
+  };
+
+    const handleAddDiscipline = async (courseId: number) => {
+    if (!newDisciplineName.trim()) {
+      alert('Название дисциплины не может быть пустым');
+      return;
+    }
+
+    setIsAdding(true);
+    try {
+      const response = await fetch(
+        `http://localhost:8000/courses/${courseId}/disciplines/add`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: newDisciplineName }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Ошибка при добавлении дисциплины');
+      }
+
+      const newDiscipline = await response.json();
+      
+      // Обновляем список дисциплин
+      setDisciplines(prev => ({
+        ...prev,
+        [courseId]: [...(prev[courseId] || []), newDiscipline]
+      }));
+      
+      // Сбрасываем состояние
+      setNewDisciplineName('');
+      setAddingCourse(null);
+    } catch (error) {
+      console.error('Ошибка:', error);
+      alert('Не удалось добавить дисциплину');
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   return (
@@ -77,6 +123,43 @@ export default function CoursesPage() {
                       <span>Предметы не найдены</span>
                     </li>
                   )}
+
+                  {/* Форма добавления новой дисциплины */}
+                  <li className="discipline-item">
+                    {addingCourse === course.id ? (
+                      <div className="add-discipline-form">
+                        <input
+                          type="text"
+                          value={newDisciplineName}
+                          onChange={(e) => setNewDisciplineName(e.target.value)}
+                          placeholder="Название новой дисциплины"
+                          className="discipline-input"
+                        />
+                        <div className="form-buttons">
+                          <button 
+                            onClick={() => handleAddDiscipline(course.id)}
+                            disabled={isAdding || !newDisciplineName.trim()}
+                            className="add-button"
+                          >
+                            {isAdding ? 'Добавление...' : 'Добавить'}
+                          </button>
+                          <button 
+                            onClick={() => setAddingCourse(null)}
+                            className="cancel-button"
+                          >
+                            Отмена
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button 
+                        onClick={() => setAddingCourse(course.id)}
+                        className="add-discipline-button"
+                      >
+                        + Добавить дисциплину
+                      </button>
+                    )}
+                  </li>
                 </ul>
               </div>
             )}

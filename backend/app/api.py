@@ -1,7 +1,7 @@
 from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from .schemas import PostCreate, PostResponse
+from .schemas import PostCreate, DisciplineCreate
 from db import Repo
 
 
@@ -121,22 +121,30 @@ async def get_disciplines(course_id: int):
         data = {'id':discipline_id, 'name': name}
         disciplines.append(data)
         
-    print(disciplines)
     return disciplines
+
+
+@app.get('/courses/{course_id}/disciplines/add', 
+         tags=['Пользовательская панель'], 
+         description='Добавляет дисциплину к выбранному курсу')
+async def add_disciplines(course_id: int, discipline: DisciplineCreate):
+    pass
+
+
+@app.get('/courses/{course_id}/disciplines/{discipline_id}/delete', 
+         tags=['Пользовательская панель'], 
+         description='Удаляет выбранную дисциплину')
+async def delete_disciplines(course_id: int):
+    pass
 
 
 @app.get('/disciplines/{discipline_id}/posts', 
          tags=['Пользовательская панель'], 
          description='Возвращает посты по выбранному премету')
 async def get_posts(discipline_id: int):
-    if discipline_id not in test_posts:
-        raise HTTPException(
-            status_code=404,
-            detail="No posts found for this discipline"
-        )
         
     posts = Repo().GetPostsByDiscipline(discipline_id=discipline_id)
-    return posts
+    return sorted(posts, key=lambda x: x["id"], reverse=True)
 
 
 @app.post('/disciplines/{disciplines_id}/posts/add',
@@ -144,12 +152,9 @@ async def get_posts(discipline_id: int):
           description='Добавление поста')
 async def add_posts(disciplines_id: int, post: PostCreate):
     disciplines = Repo().GetDisciplineIDs()
-    
-    if disciplines_id not in test_posts:
-        test_posts[disciplines_id] = []
 
     new_post = {
-        'id': len(test_posts[disciplines_id]) + 1,
+        'title': post.title,
         'text': post.text,
         'file': post.file,
         'photo': post.photo,
@@ -159,6 +164,7 @@ async def add_posts(disciplines_id: int, post: PostCreate):
 
     answer = Repo().AddPost(
         discipline_id = disciplines_id,
+        title = post.title,
         text = post.text,
         file = post.file,
         photo = post.photo,
@@ -167,3 +173,10 @@ async def add_posts(disciplines_id: int, post: PostCreate):
     )
     
     if answer: return new_post
+
+
+@app.post('/disciplines/{disciplines_id}/posts/{posts_id}/delete',
+          tags=['Пользовательская панель'], 
+          description='Удаление поста')
+async def delete_posts(disciplines_id: int, posts_id: int):
+    pass

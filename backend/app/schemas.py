@@ -5,6 +5,7 @@ from typing import Optional
 
 class PostCreate(BaseModel):
 
+    title: str
     text: str
     file: str = None
     photo: str = None
@@ -12,7 +13,6 @@ class PostCreate(BaseModel):
     date: str = None
 
 
-class PostResponse(PostCreate):
-    id: int
-    discipline_id: int
-    date: str
+class DisciplineCreate(BaseModel):
+
+    title: str
