@@ -1,9 +1,9 @@
 from .Database import Sqlite
 from datetime import datetime
-curseas =  {1:'FirstCurse', 
-            2:'SecondCurse', 
-            3:'ThirdCurse', 
-            4:'FourthCurse'}    
+courseas =  {1:'Firstcourse', 
+            2:'Secondcourse', 
+            3:'Thirdcourse', 
+            4:'Fourthcourse'}    
 
 
 
@@ -38,9 +38,9 @@ class Repo:
         '''
         if not isinstance(discipline_id, int): return False 
         if discipline_id > self.GetDisciplineIDs(): return False
-        curse=self.GetCurseByDisciplineID(discipline_id)
+        course = self.GetСourseByDisciplineID(discipline_id)
         
-        posts = self.sq.Get(table=curseas[curse], conditions={'discipline_id':discipline_id}, fetch_all=True)
+        posts = self.sq.Get(table=courseas[course], conditions={'discipline_id':discipline_id}, fetch_all=True)
         posts_list=[]
         
         for i in posts:
@@ -58,15 +58,15 @@ class Repo:
         # print(posts_list)
         return posts_list
 
-    def GetDisciplineIDs(self, curse:int|None=None) -> list|int:
+    def GetDisciplineIDs(self, course:int|None=None) -> list|int:
         '''
         Возврящает все дисциплины
         Если курс не укажан, вернет ID последнего курса 
         
-        :param curse: Номер курса (1-4)
+        :param course: Номер курса (1-4)
         '''
-        if curse:
-            disciplinesID = self.sq.Get(table="disciplines", conditions={"curse":curse}, fetch_all=True, return_column='id', element_only=True)
+        if course:
+            disciplinesID = self.sq.Get(table="disciplines", conditions={"course":course}, fetch_all=True, return_column='id', element_only=True)
             if disciplinesID == None:
                 return []
             return disciplinesID
@@ -76,7 +76,7 @@ class Repo:
             return []
         return disciplinesID[0]
 
-    def GetCurseByDisciplineID(self, discipline_id:int) -> int|None:
+    def GetСourseByDisciplineID(self, discipline_id:int) -> int|None:
         '''
         Возвращает курс в котором находится данная дисциплина
         
@@ -84,7 +84,7 @@ class Repo:
         '''
         answer = self.sq.Get(table='disciplines', 
                              conditions={"id":discipline_id}, 
-                             return_column='curse', element_only=True)
+                             return_column='course', element_only=True)
         return answer
 
     def GetDisciplineName(self, discipline_id:int) -> str|None:
@@ -98,32 +98,32 @@ class Repo:
                              return_column='discipline_name', element_only=True)
         return answer
     
-    def GetDisciplinesNamesByCurse(self, curse) -> list|None:
+    def GetDisciplinesNamesBycourse(self, course) -> list|None:
         answer = self.sq.Get(table='disciplines', 
-                             conditions={"curse":curse}, 
+                             conditions={"course":course}, 
                              return_column='discipline_name', element_only=True)
         if answer == None: answer = []
         return answer
     
     ### ADD
-    def AddDiscipline(self, curse:int, discipline_name:str) -> bool:
+    def AddDiscipline(self, course:int, discipline_name:str) -> bool:
         '''
         Добавляет новую дисциплину
         
-        :param curse: Номер курса (1-4)
+        :param course: Номер курса (1-4)
         :param discipline_name: Название дисциплины (вернет False, если такая дисциплины есть (в этом курсе))
         '''
-        disciplines = self.GetDisciplinesNamesByCurse(curse=curse)
+        disciplines = self.GetDisciplinesNamesBycourse(course=course)
         if discipline_name in disciplines: return False
         
-        answer = self.sq.AddRow(table_name='disciplines', curse=curse, discipline_name=discipline_name)
+        answer = self.sq.AddRow(table_name='disciplines', course=course, discipline_name=discipline_name)
         return answer
 
     def AddPost(self, discipline_id:int, text:str, title=None, file=None, photo=None, author=None, date=datetime.now()) -> bool:
         '''
         Добавить новый пост
 
-        :param curse: Номер курса (1-4)
+        :param course: Номер курса (1-4)
         :param discipline_name: Название дисциплины (вернет False, если такой дисциплины нет)
         :param text: Текст поста
         :param title: Title поста
@@ -144,10 +144,10 @@ class Repo:
 
         if discipline_id > self.GetDisciplineIDs(): return False
 
-        curse = self.GetCurseByDisciplineID(discipline_id)
+        course = self.GetСourseByDisciplineID(discipline_id)
 
         answer = self.sq.AddRow(
-            table_name=curseas[curse], 
+            table_name=courseas[course], 
             discipline_id=discipline_id,
             text=str(text),
             title=title, 
@@ -162,18 +162,18 @@ class Repo:
 
     ### DELETE
     def DeletePost(self, post_id:int, discipline_id:int) -> bool:
-        curse = self.GetCurseByDisciplineID(discipline_id=discipline_id)
+        course = self.GetСourseByDisciplineID(discipline_id=discipline_id)
         
         answer = self.sq.Delete(
-            table=curseas[curse],
+            table=courseas[course],
             conditions={'id':post_id}
             )
         return answer 
     
     def DeleteDiscipline(self, discipline_id:int) -> bool:
-        curse = self.GetCurseByDisciplineID(discipline_id=discipline_id)
+        course = self.GetСourseByDisciplineID(discipline_id=discipline_id)
         answer1 = self.sq.Delete(table='disciplines', conditions={'id':discipline_id})
-        answer2 = self.sq.Delete(table=curseas[curse], conditions={'discipline_id':discipline_id}, delete_all=True)
+        answer2 = self.sq.Delete(table=courseas[course], conditions={'discipline_id':discipline_id}, delete_all=True)
         return answer1 and answer2
 
     
@@ -186,7 +186,7 @@ class Repo:
         :returns: bool
         '''
         a=self.sq.GenerateTable(
-            table_name="FirstCurse",
+            table_name="FirstСourse",
             discipline_id="INTEGER",
             title='TEXT',
             text='TEXT',
@@ -198,7 +198,7 @@ class Repo:
         )
 
         b=self.sq.GenerateTable(
-            table_name="SecondCurse",
+            table_name="SecondСourse",
             discipline_id="INTEGER",
             title='TEXT',
             text='TEXT',
@@ -210,7 +210,7 @@ class Repo:
         )
 
         c=self.sq.GenerateTable(
-            table_name="ThirdCurse",
+            table_name="ThirdСourse",
             discipline_id="INTEGER",
             title='TEXT',
             text='TEXT',
@@ -222,7 +222,7 @@ class Repo:
         )
 
         d=self.sq.GenerateTable(
-            table_name="FourthCurse",
+            table_name="FourthСourse",
             discipline_id="INTEGER",
             title='TEXT',
             text='TEXT',
@@ -235,7 +235,7 @@ class Repo:
 
         e=self.sq.GenerateTable(
             table_name="disciplines",
-            curse="INTEGER",
+            course="INTEGER",
             discipline_name="TEXT"
         )
         return a and b and c and d and e

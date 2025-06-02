@@ -18,92 +18,19 @@ app.add_middleware(
 
 #Оставляем так 
 # Курсы. Тестовые данные, которые будут потом в БД
-test_courses = [
+courses = [
     {'id': 1, 'name': '1 курс'},
     {'id': 2, 'name': '2 курс'},
     {'id': 3, 'name': '3 курс'},
     {'id': 4, 'name': '4 курс'}
 ]
-# Предметы. Тестовые данные, которые будут потом в БД
-test_disciplines = {
-    1: [{'id': 1, 'name': 'Физика'}, 
-        {'id': 2, 'name': 'Высшая математика'}],
-    2: [{'id': 3, 'name': 'Введение в инженерную деятельность'},
-        {'id': 4, 'name': 'Материалловедение'},
-        {'id': 5, 'name': 'Компьютерные технологии'},
-        {'id': 6, 'name': 'Инженерная и компьютерная графика'}]
-}
-
-
-# Посты. Тестовые данные, которые будут потом в БД
-test_posts = {
-    # ключ - Название дисциплины
-    "1": [
-        {
-            'id': 1,
-            'text': 'Пост по физике без фото и файлов',
-            'file': '',
-            'photo': '',
-            'author': 'Анонимный пост',
-            'date': 'Дата поста'
-        }
-    ],
-    "2": [
-        {
-            'id': 1,
-            'text': 'Пересдать высшую математику можно будет до конца мая',
-            'file': '',
-            'photo': '',
-            'author': 'Анонимный пост',
-            'date': 'Дата поста'
-        }
-    ],
-    "3": [
-        {
-            'id': 1,
-            'text': 'Формулы для задания по линейной регрессии',
-            'file': '',
-            'photo': 'https://sun9-15.userapi.com/impg/l8UyBbmZrS59mWMISH6WvtXcJrvTD8CAOGzLbA/8i7OZU_JdSs.jpg?size=810x1080&quality=95&sign=516c77f5facddc344aa619fe0df22097&type=album',
-            'author': 'Анонимный пост',
-            'date': 'Дата поста'
-        },
-        {
-            'id': 2,
-            'text': 'Второй пост для этого же предмета',
-            'file': '',
-            'photo': 'https://sun9-15.userapi.com/impg/l8UyBbmZrS59mWMISH6WvtXcJrvTD8CAOGzLbA/8i7OZU_JdSs.jpg?size=810x1080&quality=95&sign=516c77f5facddc344aa619fe0df22097&type=album',
-            'author': 'Анонимный пост',
-            'date': 'Дата поста'
-        }
-    ],
-    4: [
-        {
-            'id': 1,
-            'text': 'Третья лаба',
-            'file': '',
-            'photo': 'https://sun9-19.userapi.com/impg/wpMQICaB6vXm0IDCYAII5IV00c8yzpSIq8YLLg/AVu1m8tsncg.jpg?size=810x1080&quality=95&sign=c73a23707a9a3c95269f241c6099c32b&type=album',
-            'author': 'Анонимный пост',
-            'date': 'Дата поста'
-        }
-    ],
-    6: [
-        {
-            'id': 1,
-            'text': 'Задание по инженерной графике',
-            'file': '',
-            'photo': 'https://sun9-3.userapi.com/impg/5gTuuxUaNXPD9s1DmHkuH98fOwE3g0VNJz131A/nqwkCYHjJIo.jpg?size=810x1080&quality=95&sign=29bff1d480b08cc46579ef2b0331ab39&type=album',
-            'author': 'Анонимный пост',
-            'date': 'Дата поста'
-        }
-    ]
-}
 
 
 @app.get('/courses', 
          tags=['Пользовательская панель'], 
          description='Возвращает все курсы')
 async def get_courses():
-    return test_courses
+    return courses
 
 
 @app.get('/courses/{course_id}/disciplines', 
@@ -111,7 +38,7 @@ async def get_courses():
          description='Возвращает предметы по выбранному курсу')
 async def get_disciplines(course_id: int):
 
-    disciplines_ids = Repo().GetDisciplineIDs(curse=course_id)
+    disciplines_ids = Repo().GetDisciplineIDs(course=course_id)
     if course_id not in disciplines_ids:
         raise HTTPException(status_code=404, detail="Course not found")
     
@@ -128,14 +55,18 @@ async def get_disciplines(course_id: int):
          tags=['Пользовательская панель'], 
          description='Добавляет дисциплину к выбранному курсу')
 async def add_disciplines(course_id: int, discipline: DisciplineCreate):
-    pass
+    answer = Repo().AddDiscipline(course=course_id, discipline_name=discipline.title)
+    if answer: return 200
+    return 404
 
 
 @app.get('/courses/{course_id}/disciplines/{discipline_id}/delete', 
          tags=['Пользовательская панель'], 
          description='Удаляет выбранную дисциплину')
-async def delete_disciplines(course_id: int):
-    pass
+async def delete_disciplines(discipline_id: int):
+    answer = Repo().DeleteDiscipline(discipline_id=discipline_id)
+    if answer: return 200
+    return 404
 
 
 @app.get('/disciplines/{discipline_id}/posts', 
@@ -151,7 +82,6 @@ async def get_posts(discipline_id: int):
           tags=['Пользовательская панель'], 
           description='Добавление поста')
 async def add_posts(disciplines_id: int, post: PostCreate):
-    disciplines = Repo().GetDisciplineIDs()
 
     new_post = {
         'title': post.title,
@@ -179,4 +109,6 @@ async def add_posts(disciplines_id: int, post: PostCreate):
           tags=['Пользовательская панель'], 
           description='Удаление поста')
 async def delete_posts(disciplines_id: int, posts_id: int):
-    pass
+    answer = Repo().DeletePost(post_id=posts_id, discipline_id=disciplines_id)
+    if answer: return 200
+    return 404
