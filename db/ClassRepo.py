@@ -39,15 +39,14 @@ class Repo:
     #     self.cursor = self.sq.GetCursor()
 
     ### GET
-    def GetPostsByDiscipline(self, discipline_id:int) -> tuple:
+    def GetPostsByDiscipline(self, discipline_id:int) -> list:
         '''
         Возвращает все посты указанной дисциплины или указанного id дисциплины, и указанного курса
         Если курсов нет, вернет []
         :param discipline_id: ID дисциплины (вернет False, если такой дисциплины нет (в этом курсе))
         '''
-        if isinstance(discipline_id, int): return False 
+        if not isinstance(discipline_id, int): return False 
         if discipline_id > self.GetDisciplineIDs(): return False
-
         curse=self.GetCurseByDisciplineID(discipline_id)
         
         posts = self.sq.Get(table=curseas[curse], conditions={'discipline_id':discipline_id}, fetch_all=True)
@@ -63,8 +62,9 @@ class Repo:
                 'author':i[6],
                 'date':i[7]
             }
+            print(new_value)
             posts_list.append(new_value)
-        
+        print(posts_list)
         return posts_list
 
     def GetDisciplineIDs(self, curse:int|None=None) -> list|int:
