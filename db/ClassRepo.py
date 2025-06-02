@@ -102,6 +102,7 @@ class Repo:
         answer = self.sq.Get(table='disciplines', 
                              conditions={"curse":curse}, 
                              return_column='discipline_name', element_only=True)
+        if answer == None: answer = []
         return answer
     
     ### ADD
@@ -112,7 +113,7 @@ class Repo:
         :param curse: Номер курса (1-4)
         :param discipline_name: Название дисциплины (вернет False, если такая дисциплины есть (в этом курсе))
         '''
-        disciplines = self.GetDisciplinesNames(curse=curse)
+        disciplines = self.GetDisciplinesNamesByCurse(curse=curse)
         if discipline_name in disciplines: return False
         
         answer = self.sq.AddRow(table_name='disciplines', curse=curse, discipline_name=discipline_name)
@@ -159,10 +160,24 @@ class Repo:
         return answer
 
 
-#
+    ### DELETE
+    def DeletePost(self, post_id:int, discipline_id:int) -> bool:
+        curse = self.GetCurseByDisciplineID(discipline_id=discipline_id)
+        
+        answer = self.sq.Delete(
+            table=curseas[curse],
+            conditions={'id':post_id}
+            )
+        return answer 
+    
+    def DeleteDiscipline(self, discipline_id:int) -> bool:
+        curse = self.GetCurseByDisciplineID(discipline_id=discipline_id)
+        answer1 = self.sq.Delete(table='disciplines', conditions={'id':discipline_id})
+        answer2 = self.sq.Delete(table=curseas[curse], conditions={'discipline_id':discipline_id}, delete_all=True)
+        return answer1 and answer2
 
-
-
+    
+    ### REDACT
 ### Разное 
     def GenerateDefaultTables(self) -> bool:
         '''
@@ -223,7 +238,6 @@ class Repo:
             curse="INTEGER",
             discipline_name="TEXT"
         )
-        # return a and b and c and d and e
-        return True
+        return a and b and c and d and e
+        # return True
         #Если хоть одно будет False   return -> False
-    
