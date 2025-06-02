@@ -16,14 +16,15 @@ class Sqlite:
         `isNotBotDatabase изнач. = False`
         '''
         if not hasattr(self, "_initialized"):   
+            print(db_name)
             self.db_name = db_name.replace('.db', '')
-            self.conn = sqlite3.connect(f'{db_name}.db')
+            print(self.db_name)
+            self.conn = sqlite3.connect(f'{self.db_name}.db')
             self.cursor = self.conn.cursor()
 
-#все связанное с таблицами
-    def GenerateTable(self, table_name:str, isauto:bool = True, **kwargs) -> bool:
+
+    def GenerateTable(self, table_name:str, **kwargs) -> bool:
         '''
-        `is_auto` если True то создать auto таблицу 
         
         '''
         try:
@@ -42,21 +43,6 @@ class Sqlite:
                 {values}
             );
             ''')
-
-            if isauto:
-                self.conn.commit()
-
-                self.cursor.execute(f'''
-                CREATE TABLE IF NOT EXISTS "Auto{table_name}" (
-                    id INTEGER PRIMARY KEY,
-                    flag TEXT,
-                    text TEXT,
-                    time TEXT,
-                    pic TEXT,
-                    vid TEXT, 
-                    file TEXT
-                );
-                ''')
 
             self.conn.commit()
             return True
@@ -155,7 +141,7 @@ class Sqlite:
             return False
 
 #Get
-    def Get(self, table:str, conditions:dict, 
+    def Get(self, table:str, conditions:dict|None = None, 
         return_column=None, fetch_all=False, element_only=False, 
         logic="AND", method="="):
         """
@@ -178,13 +164,18 @@ class Sqlite:
             select_part = return_column if element_only else "*"
 
             # WHERE часть
-            where_clauses = [f"{col} {method} ?" for col in conditions]
-            where_str = f" {logic} ".join(where_clauses)
-            values = list(conditions.values())
+            where_str = ""
+            values = []
+            if conditions:
+                where_clauses = [f'"{col}" {method} ?' for col in conditions]
+                where_str = " WHERE " + f" {logic} ".join(where_clauses)
+                values = list(conditions.values())
+            else:
+                where_str = ""
+                values = []
 
             # Финальный запрос
-            query = f'SELECT {select_part} FROM "{table}" WHERE {where_str}'
-
+            query = f'SELECT {select_part} FROM "{table}"{where_str}'
             self.cursor.execute(query, values)
 
             result = self.cursor.fetchall() if fetch_all else self.cursor.fetchone()
@@ -197,45 +188,55 @@ class Sqlite:
                     return result[0] if result else None
             else:
                 return result
+
         except sqlite3.OperationalError as e:
             print(f"[ОШИБКА БД] {e}")
             return None
 
 #замена данных
-    def Replace(self, table_name, row, new_value, find_param, find_value) -> bool:
-        '''
-        UPDATE "{table_name}" SET {row} = ? WHERE {find_param} = ?;\n
-        self.cursor.execute(command, (new_value, find_value))
-        '''
-        try:
-            command = f'''
-            UPDATE "{table_name}" 
-            SET {row} = ? 
-            WHERE {find_param} = ?;
-            '''
-            
-            self.cursor.execute(command, (new_value, find_value))
+    def Replace(self, table_name: str, updates: dict, conditions: dict = None,
+            logic: str = "AND", method: str = "=") -> bool:
+        """
+        Обновляет значения в таблице по условиям.
 
+        :param table_name: имя таблицы
+        :param updates: словарь {column: new_value}, что обновить
+        :param conditions: словарь {column: value}, по каким условиям искать
+        :param logic: логика между условиями (AND / OR)
+        :param method: тип сравнения (=, LIKE, REGEXP)
+        :return: True при успехе, False при ошибке
+        """
+        try:
+            if method not in ["=", "LIKE", "REGEXP"]:
+                raise ValueError("method должен быть '=', 'LIKE' или 'REGEXP'")
+
+            if not updates:
+                raise ValueError("updates не должен быть пустым")
+
+            # SET часть
+            set_clause = ", ".join([f'"{col}" = ?' for col in updates])
+            set_values = list(updates.values())
+
+            # WHERE часть
+            where_clause = ""
+            where_values = []
+            if conditions:
+                condition_parts = [f'"{col}" {method} ?' for col in conditions]
+                where_clause = f' WHERE {" " + logic + " ".join(condition_parts)}'
+                where_values = list(conditions.values())
+
+            query = f'UPDATE "{table_name}" SET {set_clause}{where_clause}'
+
+            self.cursor.execute(query, set_values + where_values)
             self.conn.commit()
+
             return True
-        
-        except Exception as e:
-            print('[sql Replace]', e)
-            return False
-
-    def ReplaceMany(self, table_name, row, old_value, new_value):
-        '''
-        UPDATE {table_name} SET {column_name} = REPLACE({column_name}, ?, ?) WHERE {column_name} LIKE ?
-        '''
-        try:
-            command = f'UPDATE "{table_name}" SET {row} = REPLACE({row}, ?, ?)WHERE {row} LIKE ?'
-            self.cursor.execute(command, (old_value, new_value, f'{old_value}%'))
 
         except Exception as e:
-            print('[sql ReplaceMany]', e)
+            print("[sql Replace]", e)
             return False
 
-#sq.like
+
     def Count(self, table_name)-> int: 
         '''
         кол-во строк в таблице
