@@ -2,7 +2,7 @@ from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from .schemas import PostCreate, PostResponse
-from .create_db import db
+# from .create_db import db
 
 
 app = FastAPI(title='LearnShare')
@@ -16,6 +16,7 @@ app.add_middleware(
 )
 
 
+#Оставляем так 
 # Курсы. Тестовые данные, которые будут потом в БД
 test_courses = [
     {'id': 1, 'name': '1 курс'},
@@ -38,8 +39,8 @@ test_disciplines = {
 
 # Посты. Тестовые данные, которые будут потом в БД
 test_posts = {
-    # ключ - id дисциплины
-    1: [
+    # ключ - Название дисциплины
+    "Электротехника": [
         {
             'id': 1,
             'text': 'Пост по физике без фото и файлов',
@@ -49,7 +50,7 @@ test_posts = {
             'date': 'Дата поста'
         }
     ],
-    2: [
+    "Метрология": [
         {
             'id': 1,
             'text': 'Пересдать высшую математику можно будет до конца мая',
@@ -59,7 +60,7 @@ test_posts = {
             'date': 'Дата поста'
         }
     ],
-    3: [
+    "Физика": [
         {
             'id': 1,
             'text': 'Формулы для задания по линейной регрессии',
@@ -99,6 +100,19 @@ test_posts = {
     ]
 }
 
+
+'''
+Поля в бд
+
+table_name="FirstCurse",
+            discipline_name="TEXT",
+            title='TEXT',
+            text='TEXT',
+            file='TEXT',
+            photo='TEXT',
+            author='TEXT',
+            date='TEXT'
+'''
 
 @app.get('/courses', 
          tags=['Пользовательская панель'], 

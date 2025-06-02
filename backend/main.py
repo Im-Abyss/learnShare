@@ -1,9 +1,11 @@
 import uvicorn
 from app import app
-from db import Sqlite
+from db import Repo
 
 
 if __name__ == '__main__':
-    
-    uvicorn.run(app='app:app',
-                reload=True)
+    Repo().SetDb("Database.db")
+
+    if Repo().GenerateDefaultTables():
+        uvicorn.run(app='app:app',
+                    reload=True)
