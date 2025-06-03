@@ -176,10 +176,6 @@ export default function PostsPage() {
 
   const handleDeleteDiscipline = async () => {
     if (!disciplineId || !courseId) return;
-    
-    if (!window.confirm(`Вы уверены, что хотите удалить дисциплину "${disciplineName}"? Все посты в ней будут удалены.`)) {
-      return;
-    }
 
     setIsDeletingDiscipline(true);
     try {
